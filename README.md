@@ -2,7 +2,7 @@
 
 基于 **LangChain + LangGraph + DeepSeek** 构建的 AI 简历优化助手。该项目采用 Agent 架构（感知-分析-规划-执行-行动），能够深度分析简历内容，结合用户需求进行针对性优化，并自动生成排版精美的 PDF 简历。
 
-![UI Preview](assets/ui_schematic.png)
+![UI Preview](assets/ui_preview.png)
 
 ## ✨ 核心功能
 
