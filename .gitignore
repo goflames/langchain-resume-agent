@@ -44,3 +44,7 @@ output/
 temp_uploads/
 *.pdf
 *.log
+
+# Test files
+sample_resume.txt
+test_*.py

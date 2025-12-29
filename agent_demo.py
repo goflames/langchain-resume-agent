@@ -10,6 +10,40 @@ from main import build_llm
 from tools import read_resume_file, generate_resume_pdf
 
 # -------------------------------------------------------------------------
+# Default Resume Template
+# -------------------------------------------------------------------------
+DEFAULT_RESUME_TEMPLATE = """
+# 姓名
+
+联系电话：xxx | 邮箱：xxx | 个人主页/博客：xxx
+
+## 个人简介
+（简短总结个人优势、经验年限和核心竞争力）
+
+## 教育背景
+**学校名称** | 专业 | 学历 | 时间
+*   主修课程：xxx
+*   荣誉奖项：xxx
+
+## 技能清单
+*   **编程语言**：xxx
+*   **框架/工具**：xxx
+*   **其他**：xxx
+
+## 工作经历
+**公司名称** | 职位 | 时间
+*   **项目/职责**：简要描述项目背景或职责范围。
+*   **行动/贡献**：详细描述你做了什么，使用了什么技术。
+*   **成果**：量化成果（如提升了xx%效率，减少了xx%bug）。
+
+## 项目经验
+**项目名称** | 角色 | 时间
+*   **项目描述**：xxx
+*   **技术栈**：xxx
+*   **主要贡献**：xxx
+"""
+
+# -------------------------------------------------------------------------
 # 1. Memory / State Definition
 # -------------------------------------------------------------------------
 class AgentState(TypedDict):
@@ -18,6 +52,7 @@ class AgentState(TypedDict):
     """
     resume_file_path: str
     user_requirements: str  # User's additional requirements
+    template_content: str   # Resume format template (User provided or Default)
     original_content: str
     analysis_report: str
     optimization_plan: str
@@ -107,6 +142,11 @@ def execution_node(state: AgentState):
     original = state['original_content']
     plan = state['optimization_plan']
     requirements = state.get('user_requirements', '')
+    template = state.get('template_content', '')
+
+    if not template:
+        print("No template provided, using default template.")
+        template = DEFAULT_RESUME_TEMPLATE
     
     if not original:
         return {"optimized_content": "Cannot rewrite empty resume."}
@@ -115,18 +155,23 @@ def execution_node(state: AgentState):
     
     system_prompt = (
         "你是一个专业的简历写手。请根据原始简历和修改计划，重写一份高质量的简历。\n"
-        "要求：\n1. 使用Markdown格式。\n2. 内容要专业、精炼。\n3. 突出候选人的优势。\n4. 包含姓名、联系方式、教育背景、工作经历、技能等标准模块。"
+        "你需要严格遵循给定的【简历模板】的格式、结构和标题进行撰写。\n"
+        "要求：\n1. 使用Markdown格式。\n2. 内容要专业、精炼。\n3. 突出候选人的优势。\n4. 填充模板中的内容，保留模板的章节结构。"
     )
     if requirements:
         system_prompt += f"\n5. 特别注意满足用户的附加要求：{requirements}"
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
-        ("user", "原始简历：\n{original}\n\n修改计划：\n{plan}")
+        ("user", "【简历模板】：\n{template}\n\n原始简历：\n{original}\n\n修改计划：\n{plan}")
     ])
     chain = prompt | llm
-    response = chain.invoke({"original": original, "plan": plan})
+    response = chain.invoke({"original": original, "plan": plan, "template": template})
     
+    print("\n" + "="*20 + " LLM RAW OUTPUT START " + "="*20)
+    print(response.content)
+    print("="*20 + " LLM RAW OUTPUT END " + "="*20 + "\n")
+
     return {"optimized_content": response.content}
 
 def action_node(state: AgentState):

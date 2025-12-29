@@ -81,15 +81,16 @@ langchain-demo/
 ├── agent_demo.py       # Agent 核心逻辑 (StateGraph定义)
 ├── app.py              # Streamlit 前端页面
 ├── main.py             # LLM 初始化配置
-├── tools.py            # 工具函数 (文件读取、PDF生成)
+├── tools.py            # 工具函数 (文件读取、PDF生成、字体管理)
 ├── requirements.txt    # 项目依赖
+├── fonts/              # 字体目录 (存放中文字体)
 ├── .env                # 环境变量 (需自行创建)
 └── output/             # 生成结果目录 (自动忽略)
 ```
 
 ## ⚠️ 注意事项
 
-*   PDF 生成目前使用基础字体，如需支持复杂中文字体，请在 `tools.py` 中自行挂载字体文件。
+*   **字体支持**：项目已内置字体管理逻辑，优先使用 `fonts/ChineseFont.ttf`，如不存在则自动回退到系统字体（SimHei/Microsoft YaHei）。
 *   上传的文件和生成的结果分别存储在 `temp_uploads/` 和 `output/` 目录中。
 
 ## 📄 License
